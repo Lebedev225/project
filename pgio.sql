@@ -9,7 +9,6 @@ CREATE TABLE CUSTOMER (
    customer_state    VARCHAR(20),
    customer_totalsales INTEGER,
    customer_lastsales INTEGER
-
 );
 
 -- Insert records

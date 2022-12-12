@@ -21,12 +21,21 @@ const pool = new Pool({
     },
 });
 
-const sql_create = `CREATE TABLE IF NOT EXISTS Books (
-  Book_ID SERIAL PRIMARY KEY,
-  Title VARCHAR(100) NOT NULL,
-  Author VARCHAR(100) NOT NULL,
-  Comments TEXT
+const sql_create = `CREATE TABLE IF NOT EXISTS Customer (
+    Customer_ID    	SERIAL PRIMARY KEY,
+    Fname  	VARCHAR(20) NOT NULL,
+    Lname 	VARCHAR(20) NOT NULL,
+    State    VARCHAR(2),
+    Totalsales INTEGER,
+    Lastsales INTEGER
 );`;
+
+// `CREATE TABLE IF NOT EXISTS Books (
+//   Book_ID SERIAL PRIMARY KEY,
+//   Title VARCHAR(100) NOT NULL,
+//   Author VARCHAR(100) NOT NULL,
+//   Comments TEXT
+// );`;
 
 // const sql = "SELECT * FROM PRODUCT ORDER BY PROD_ID";
 pool.query(sql_create, [], (err, result) => {
@@ -37,23 +46,32 @@ pool.query(sql_create, [], (err, result) => {
     } else {
         message = "success";
         model = result.rows;
-        console.log("Successful creation of the 'Books' table");
-        const sql_insert = `INSERT INTO Books (Book_ID, Title, Author, Comments) VALUES
-    (1, 'Mrs. Bridge', 'Evan S. Connell', 'First in the serie'),
-    (2, 'Mr. Bridge', 'Evan S. Connell', 'Second in the serie'),
-    (3, 'L''ingénue libertine', 'Colette', 'Minne + Les égarements de Minne')
-    ON CONFLICT DO NOTHING;`;
+        console.log("Successful creation of the 'Customer' table");
+        const sql_insert = `INSERT INTO Customer (Customer_ID, Fname, Lname, State, Totalsales, Lastsales) VALUES
+            (101,'Alfred', 'Alexander', 'NV', '1500', '900'),
+            (102,'Cynthia', 'Chase', 'CA', '900', '1200'),
+            (103,'Ernie', 'Ellis', 'CA', '3500', '4000'),
+            (104,'Hubert', 'Hughes', 'CA', '4500', '2000'),
+            (105,'Kathryn', 'King', 'NV', '850', '500'),
+            (106,'Nicholas', 'Niles', 'NV', '500', '400'),
+            (107,'Patricia', 'Pullman', 'AZ', '1000', '1100'),
+            (108,'Sally', 'Smith', 'NV', '1000', '1100'),
+            (109,'Shelly', 'Smith', 'NV', '2500', '0'),
+            (110,'Terrance', 'Thomson', 'CA', '5000', '6000'),
+            (111,'Valarie', 'Vega', 'AZ', '0', '3000'),
+            (112,'Xavier', 'Xerox', 'AZ', '600', '250')
+            ON CONFLICT DO NOTHING;`;
         pool.query(sql_insert, [], (err, result) => {
             if (err) {
                 return console.error(err.message);
             }
             const sql_sequence =
-                "SELECT SETVAL('Books_Book_ID_Seq', MAX(Book_ID)) FROM Books;";
+                "SELECT SETVAL('Customer_Customer_ID_Seq', MAX(Customer_ID)) FROM Customer;";
             pool.query(sql_sequence, [], (err, result) => {
                 if (err) {
                     return console.error(err.message);
                 }
-                console.log("Successful creation of 3 books");
+                console.log("Successful creation of customers record");
             });
         });
     }
@@ -71,6 +89,16 @@ app.get("/", (req, res) => {
     res.render("index");
 });
 
+app.get("/customers", (req, res) => {
+    const sql = "SELECT * FROM Customer ORDER BY Customer_ID";
+    pool.query(sql, [], (err, result) => {
+        if (err) {
+            return console.error(err.message);
+        }
+        res.render("customers", { model: result.rows });
+    });
+});
+
 app.get("/books", (req, res) => {
     const sql = "SELECT * FROM Books ORDER BY Title";
     pool.query(sql, [], (err, result) => {
@@ -80,18 +108,17 @@ app.get("/books", (req, res) => {
         res.render("books", { model: result.rows });
     });
 });
-
 // app.get("/about", (req, res) => {
 //     res.render("about");
 // });
 
-app.get("/data", (req, res) => {
-    const test = {
-        title: "Test",
-        items: ["one", "two", "three"],
-    };
-    res.render("data", { model: test });
-});
+// app.get("/data", (req, res) => {
+//     const test = {
+//         title: "Test",
+//         items: ["one", "two", "three"],
+//     };
+//     res.render("data", { model: test });
+// });
 
 // GET /edit/5
 app.get("/edit/:id", (req, res) => {
